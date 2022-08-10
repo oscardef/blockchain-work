@@ -41,7 +41,8 @@ for row in df['Txhash']:
     print(func_params)
     if rowNum == 5 or rowNum == 6:
         func_params['_liquidationRatio'] = func_params.pop('_data')
-        func_params['collateralPoolId'] = func_params.pop('_poolId')
+        func_params['_collateralPoolId'] = func_params.pop('_poolId')
+    df.loc[rowNum, 'collateralPoolId'] = func_params['_collateralPoolId']
     for column in df.columns[18:]:
         colName = '_' + column
         if colName in func_params.keys():
@@ -50,4 +51,7 @@ for row in df['Txhash']:
             df.loc[rowNum, column] = func_params[colName]
 
     rowNum += 1
+# set collateralPoolId to type string
+df['collateralPoolId'] = df['collateralPoolId'].astype(str)
+df['collateralPoolId'] = df['collateralPoolId'].str.split("'", 1).str[1].str.split("\\", 1).str[0]
 df.to_csv('decodedData.csv', index=False)
