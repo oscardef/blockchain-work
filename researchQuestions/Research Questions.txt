@@ -1,0 +1,39 @@
+Two research questions:
+Question #1
+--is the stability fee accrued to reflected LTV in every single block? or it is reflected at the point of position closuer.
+
+It is not reflected every single block as that would be costly in terms of gas. The collection of stability fees for each collateral pool seems to run a proof-of-work type function (rpow) on the sum of the global stability fee rate and collateral specific stability fee, along with the time from the last accumulation time (last time the function was called), and RAY (10^27). This is then multiplied by the previousDebtAccumulatedRate.
+
+The BookKeeper contract will then run accrueStabilityFee, which will log the difference between the debtAccumulatedRate and previousDebtAccumulatedRate.
+
+The collect function seems to get called 4 times in a row once a week. Each call tends to be for each of these for collateral tokens:
+ibBUSD
+BUSD-STABLE
+ibUSDT
+ibWBNB
+
+
+Question #2
+--If you are the operator of a stablecoin protocol, how would you run it? How could you make it stable and competitive?
+--Do you need savings as well? Alpaca does not have it but MakerDAO has it. If yes, what should be the optimal interest rate and how should the interest rate change?
+
+Alpaca seems more focused on drawing in a focused investor - not so much someone who is looking for the safety of a savings account. Alpaca’s system is largely about farming yield with a large leverage not the safety of savings.
+
+That said my research did find that Alpaca has “savings vaults” which are essentially like a mixture of yield farming and a normal savings account, as they make use of leveraging collateral, however there is 0 risk of liquidation.
+
+If I were to run a stablecoin protocol I think I would want the best of both worlds. Stability is obviously	 important, but both makerDAO and Alpaca seem to handle that well through overcollateralization and liquidation of collateral assets - and I think I would follow suit with that. However for a stable coin to be effective, it needs to have many users, and must thus be competitive. Since competition is fierce in the industry, it is best to offer as much as possible to the user - while still maintaining stability and functionality. With that in mind 
+
+
+—What would be the initial parameter for collateralPoolConfig? If you need to change them in the future, what would affect the changes in the number?
+
+For the most part it would make sense for many of the parameters to be similar to those of other stable coins; liquidation ratio, debt ceiling/floor, etc. The main thing to play with to try being competitive is the Stability Fee rate. To drive up demand it is of course important to have competitive pricing and lower fees than the competition. Things to keep in in mind in the future - if there is a surplus in demand, fees could be increased.  Furthermore, if demand seems low fees should be reduced.
+
+The two main things to keep an eye on when setting/chaining these numbers is #1 stability, and #2 degree of competitiveness.
+
+
+--and anything that you think is good to consider.
+
+Crypto is of course prone to high volatility so;
+An interesting feature that alpaca has to help maintain stability and protect there users is “Alpaca Guard” which keeps users safe from the dangers of the market by entering “Protection Mode” when the price of an asset in a users farming pair has its on-chain price from the exchange that pair is on differ more than 10% from the median of a batch of off-chain oracles we verify with; This consists of disabling liquidations, and opening/closing positions; all in order to protect you from trading at bad prices and taking an unjust loss. 
+
+
