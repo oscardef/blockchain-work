@@ -1,0 +1,98 @@
+// --- CDP Manipulation ---
+  /// @dev Adjust a position on the target position address to perform locking/unlocking of collateral and minting/repaying of stablecoin
+  /// @param _collateralPoolId Collateral pool id
+  /// @param _positionAddress Address of the position
+  /// @param _collateralOwner The payer/receiver of the collateral token, the collateral token must already be deposited into the protocol in case of locking the collateral
+  /// @param _stablecoinOwner The payer/receiver of the stablecoin, the stablecoin must already be deposited into the protocol in case of repaying debt
+  /// @param _collateralValue The value of the collateral to lock/unlock
+  /// @param _debtShare The debt share of stalbecoin to mint/repay. Please pay attention that this is a debt share not debt value.
+  /// @dev access: POSITION_MANAGER_ROLE
+  function adjustPosition(
+    bytes32 _collateralPoolId, // collateralPoolId
+    address _positionAddress, // stableSwapModule
+    address _collateralOwner,// stableSwapModule
+    address _stablecoinOwner, // stableSwapModule
+    int256 _collateralValue, // negative for swapStablecoinToToken
+    int256 _debtShare // negative for  swapStablecoinToToken
+  ) external override nonReentrant whenNotPaused onlyPositionManager {
+    // system is live (meaning it is active)
+    require(live == 1, "BookKeeper/not-live");
+    // get the position of the collateral pool id and position address from positions mapping
+    Position memory position = positions[_collateralPoolId][_positionAddress];
+    // Get the collateral pool info of _collateralPoolId
+    ICollateralPoolConfig.CollateralPoolInfo memory _vars = ICollateralPoolConfig(collateralPoolConfig)
+      .getCollateralPoolInfo(_collateralPoolId);
+
+    // collateralPool has been initialised. debtAccumulatedRate is set to RAY (10**27) when initialized
+    require(_vars.debtAccumulatedRate != 0, "BookKeeper/collateralPool-not-init");
+    // add _collateralValue to the lockedCollateral part of the Postion struct
+    position.lockedCollateral = add(position.lockedCollateral, _collateralValue);
+    // add _debtShare to the debtShare part of the Position struct
+    position.debtShare = add(position.debtShare, _debtShare);
+    // add _debtShare to the totalDebtShare part of _vars (the collateral pool info)
+    _vars.totalDebtShare = add(_vars.totalDebtShare, _debtShare);
+    // set the totalDebtShare of _collateralPoolId to the new _vars.totalDebtShare
+    ICollateralPoolConfig(collateralPoolConfig).setTotalDebtShare(_collateralPoolId, _vars.totalDebtShare);
+
+    // _debtValue is the product of the collateral pool's debtAccumulatedRate and _debtShare of the function call
+    int256 _debtValue = mul(_vars.debtAccumulatedRate, _debtShare);
+    // _positionDebtValue is the product of the collateral pool's debtAccumulatedRate and the position debt share
+    uint256 _positionDebtValue = mul(_vars.debtAccumulatedRate, position.debtShare);
+    // totalStablecoinIssued is the sum of the previous totalStablecoinIssued and the _debtValue
+    totalStablecoinIssued = add(totalStablecoinIssued, _debtValue);
+
+    // either debt has decreased, or debt ceilings are not exceeded
+    require(
+      either(
+        _debtShare <= 0,
+        both(
+          mul(_vars.totalDebtShare, _vars.debtAccumulatedRate) <= _vars.debtCeiling,
+          totalStablecoinIssued <= totalDebtCeiling
+        )
+      ),
+      "BookKeeper/ceiling-exceeded"
+    );
+    // position is either less risky than before, or it is safe :: check work factor
+    require(
+      either(
+        both(_debtShare <= 0, _collateralValue >= 0),
+        _positionDebtValue <= mul(position.lockedCollateral, _vars.priceWithSafetyMargin)
+      ),
+      "BookKeeper/not-safe"
+    );
+
+    // position is either more safe, or the owner consents
+    require(
+      either(both(_debtShare <= 0, _collateralValue >= 0), wish(_positionAddress, msg.sender)),
+      "BookKeeper/not-allowed-position-address"
+    );
+    // collateral src consents
+    require(
+      either(_collateralValue <= 0, wish(_collateralOwner, msg.sender)),
+      "BookKeeper/not-allowed-collateral-owner"
+    );
+    // debt dst consents
+    require(either(_debtShare >= 0, wish(_stablecoinOwner, msg.sender)), "BookKeeper/not-allowed-stablecoin-owner");
+
+    // position has no debt, or a non-debtFloory amount
+    require(either(position.debtShare == 0, _positionDebtValue >= _vars.debtFloor), "BookKeeper/debt-floor");
+    // Number of _collateralPoolId token's owned by _collateralOwner is subtracted by _collateralValue
+    collateralToken[_collateralPoolId][_collateralOwner] = sub(
+      collateralToken[_collateralPoolId][_collateralOwner],
+      _collateralValue
+    );
+    // _stableCoinOwner's stablecoin increased/decreased by _debtValue
+    stablecoin[_stablecoinOwner] = add(stablecoin[_stablecoinOwner], _debtValue);
+    // update position
+    positions[_collateralPoolId][_positionAddress] = position;
+    // emit AdjustPosition event
+    emit LogAdjustPosition(
+      msg.sender,
+      _collateralPoolId,
+      _positionAddress,
+      position.lockedCollateral,
+      position.debtShare,
+      _collateralValue,
+      _debtShare
+    );
+  }
