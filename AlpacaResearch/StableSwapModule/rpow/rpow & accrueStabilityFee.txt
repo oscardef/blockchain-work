@@ -1,0 +1,117 @@
+function rpow(
+    uint256 x, // globalStabilityFeeRate + _stabilityFeeRate (totalSFR (totalStabilityFeeRate))
+    uint256 n, // now - _lastAccumulationTime (time)
+    uint256 b  // RAY (10**27)
+  ) internal pure returns (uint256 z) {
+    assembly {
+      switch x
+      // if totalSFR == 0
+      case 0 {
+        switch n
+        // if time == 0
+        case 0 {
+            // set variable z to RAY
+          z := b
+        }
+        // if time is not 0
+        default {
+            // set variable z to 0
+          z := 0
+        }
+      }
+      // if totalSFR != 0
+      default {
+        // check if time is divisible by 2
+        switch mod(n, 2)
+        // if time is even
+        case 0 {
+            // set variable z to RAY
+          z := b
+        }
+        // if time is odd
+        default {
+            // set variable z to totalSFR
+          z := x
+        }
+        // get half a RAY
+        let half := div(b, 2) // for rounding.
+        // loop n/2 - 1 times (since initialization begins with n/2)
+        for {
+            // header: initialize n as n/2
+          n := div(n, 2)
+          
+        } n { // condition: continue while n is nonzero
+            // post-iteration: n = time/2
+          n := div(n, 2)
+        } { // body:
+            // xx = totalSFR**2
+          let xx := mul(x, x)
+          // if xx/x != x
+          if iszero(eq(div(xx, x), x)) {
+            // end execution, revert state changes
+            revert(0, 0)
+          }
+          // xxRound = xx + half a RAY
+          let xxRound := add(xx, half)
+          // if xxRound < xx
+          if lt(xxRound, xx) {
+            // end execution, revert state changes
+            revert(0, 0)
+          }
+          // x = xxRound / RAY
+          x := div(xxRound, b)
+          // if time is odd (n%2 == 1)
+          if mod(n, 2) 
+            // zx = z * totalSFR
+            let zx := mul(z, x)
+            // if x != 0 and zx/x != z
+            if and(iszero(iszero(x)), iszero(eq(div(zx, x), z))) {
+                // end execution, revert state changes
+              revert(0, 0)
+            }
+            // zxRound = zx + half a RAY
+            let zxRound := add(zx, half)
+            // if zxRound < zx
+            if lt(zxRound, zx) {
+                // end execution, revert state changes
+              revert(0, 0)
+            }
+            // set variable z to zxRound/RAY and return this value when loop is done
+            z := div(zxRound, b)
+          }
+        }
+      }
+    }
+  }
+
+  /** @dev Accrue stability fee or the mint interest rate.
+      This function will always be called only by the StabilityFeeCollector contract.
+      `debtAccumulatedRate` of a collateral pool is the exchange rate of the stablecoin minted from that pool (think of it like ibToken price from Lending Vault).
+      The higher the `debtAccumulatedRate` means the minter of the stablecoin will need to pay back the debt with higher amount.
+      The point of Stability Fee is to collect a surplus amount from minters and this is technically done by incrementing the `debtAccumulatedRate` overtime.
+  */
+  /// @param _collateralPoolId Collateral pool id
+  /// @param _stabilityFeeRecipient The address which will receive the surplus from Stability Fee. This will always be SystemDebtEngine who will use the surplus to settle bad debt.
+  /// @param _debtAccumulatedRate The difference value of `debtAccumulatedRate` which will be added to the current value of `debtAccumulatedRate`. [ray]
+  /// @dev access: STABILITY_FEE_COLLECTOR_ROLE
+  function accrueStabilityFee(
+    bytes32 _collateralPoolId,
+    address _stabilityFeeRecipient, 
+    int256 _debtAccumulatedRate 
+  ) external override nonReentrant whenNotPaused onlyStabilityFeeCollector {
+    // require that bookkeeper is active
+    require(live == 1, "BookKeeper/not-live");
+    // get collateral pool info of the collateral pool id
+    ICollateralPoolConfig.CollateralPoolInfo memory _vars = ICollateralPoolConfig(collateralPoolConfig)
+      .getCollateralPoolInfo(_collateralPoolId);
+    // increase update collateral debtAccumulateRate by _debtAccumulatedRate
+    _vars.debtAccumulatedRate = add(_vars.debtAccumulatedRate, _debtAccumulatedRate);
+    // setDebtAccumulatedRate of _collateralPoolId to _vars.debtAccumulatedRate
+    ICollateralPoolConfig(collateralPoolConfig).setDebtAccumulatedRate(_collateralPoolId, _vars.debtAccumulatedRate);
+    // store the product of _vars.totalDebtShare * _debtAccumulatedRate
+    int256 _value = mul(_vars.totalDebtShare, _debtAccumulatedRate); // [rad]
+    // increase the stablecoin possesed by the SystemDebtEngine by _value
+    stablecoin[_stabilityFeeRecipient] = add(stablecoin[_stabilityFeeRecipient], _value);
+    // increase totalStableCoinIssued by _value
+    totalStablecoinIssued = add(totalStablecoinIssued, _value);
+  }

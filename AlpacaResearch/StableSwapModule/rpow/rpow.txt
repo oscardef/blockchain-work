@@ -1,0 +1,14 @@
+Why rpow? What does it do? Whats the point?
+
+
+It will update the `debtAccumulatedRate` of the specified collateral pool according to 
+the global and per-pool stability fee rates with respect to the last block that `collect` was called
+
+What rpow does to the debtAccumulatedRate:
+debtAccumulatedRate is set to previousRate*unit (RAY) if totalSFR is 0 and time passed is 0
+debtAccumulatedRate is set to 0 if totalSFR is 0 and time passed is nonzero
+
+
+When totalSFR is nonZero z will enter a for loop wherein the totalSFR is compounded to the starting z value (depending on if the time difference was even or odd?) for n/2 iterations.
+This is done as a means to compound the debtAccumulatedRate over the given time difference rather than waste gas costs on applying the totalSFR each block. The debtAccumulated rate
+Is finally calculated by multiplying the resulting z value from the rpow function with the _previousDebtAccumulatedRate.
