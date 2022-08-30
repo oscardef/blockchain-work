@@ -9,7 +9,7 @@ async def find_contract(contract_address):
         contract_dict = contract[0]
         print(contract_dict.get('ContractName') + ": " + contract_address)
 
-df = pd.read_csv('alldata.csv', header=0)
+df = pd.read_csv('alpacaData.csv', header=0)
 rowNum = 0
 for row in df['ContractAddress']:
     if type(row) is str:
