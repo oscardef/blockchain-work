@@ -4,6 +4,9 @@ import json
 import pandas as pd
 import numpy as np
 
+# Program decodes transcation and adds name of collateralPool as a new column for each collect transaction
+# result is stored in decodedCollect.csv and data is taken from the collect.csv file.
+
 bsc = "https://bsc-dataseed.binance.org/"
 web3 = Web3(Web3.HTTPProvider(bsc))
 print(web3.isConnected())

@@ -2,6 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+# PROGRAM: visualizes all the data taken from decodedData.csv and stores them in the plots directory with
+# subdirectories for each collateral pool
+
 df = pd.read_csv('decodedData.csv')
 
 d = dict(tuple(df.groupby('collateralPoolId')))

@@ -1,4 +1,8 @@
 import pandas as pd
+# columns renamed manually before running this program from data_inputs.csv to data_new.csv
+
+# PROGRAM: read the data from data_new.csv and merge all the columns such that those with the same name are combined
+
 
 df = pd.read_csv('data_new.csv')
 

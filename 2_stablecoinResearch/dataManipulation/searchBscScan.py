@@ -2,6 +2,8 @@ from bscscan import BscScan
 import asyncio
 import pandas as pd
 
+# PROGRAM: reads through all contract addresses in the alpacaData.csv file and prints out each contract name and
+# associated address by using the BscScan api
 
 async def find_contract(contract_address):
     async with BscScan("CP86BMUWHURNS3SXZXN6Z8FT9MAT85MQXA") as client:

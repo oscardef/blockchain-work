@@ -3,14 +3,15 @@ from web3 import Web3
 import json
 import pandas as pd
 
+# PROGRAM: before visualizing the data the inputs need to be decoded, this program does that for each transaction hash
+# in mergedColumns.csv
+
 bsc = "https://bsc-dataseed.binance.org/"
 web3 = Web3(Web3.HTTPProvider(bsc))
 print(web3.isConnected())
 
 BSCSCAN_API_KEY = "CP86BMUWHURNS3SXZXN6Z8FT9MAT85MQXA"
 
-# Transaction hash that has the input data
-#TX_HASH = '0x2f749b68984c0cc01e48bb3f4e981f549d6e303e2c7c856d1839661e81a00f6e'
 # Contract address
 CONTRACT_ADDR = Web3.toChecksumAddress("0x064bb6eea2339cad2bdaf895c3d3728e2c6bdac1")
 def decodeInputByTxHash(tx_hash):
@@ -27,7 +28,7 @@ def decodeInputByTxHash(tx_hash):
     return contract.decode_function_input(tx["input"])
 
 
-df = pd.read_csv('mergedColumns.csv')
+df = pd.read_csv('../reformatCSV/mergedColumns.csv')
 # create new dataframe with only Blockno column from df
 
 dfPlot = df.iloc[:, 1]

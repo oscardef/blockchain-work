@@ -1,5 +1,8 @@
 import pandas as pd
 import re
+# PROGRAM: read data.csv and add a new column for each input in the 'Input' column and place the corresponding
+# input to that column and save the final result as 'data_inputs.csv'
+# after running this column names in 'data_inputs.csv' are renamed as seen in 'data_new.csv'
 
 df = pd.read_csv('data.csv', header=0)
 rowNum = 0
@@ -18,4 +21,4 @@ for row in df['Input (Default)']:
             df[colName] = ""
         df.loc[rowNum, colName] = inputs[index]
     rowNum += 1
-df.to_csv('data_new.csv', index=False)
+df.to_csv('data_inputs.csv', index=False)
