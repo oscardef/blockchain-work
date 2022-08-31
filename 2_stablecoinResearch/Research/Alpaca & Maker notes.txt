@@ -1,0 +1,87 @@
+CDP based stablecoin:
+	⁃	Collateralized Debt Position
+	⁃	A collateralized debt position is held by locking collateral in smart contracts to generate stablecoins.
+	⁃	Developed since 2014
+	⁃	With the makerDAO project
+	⁃	allows you to lock your crypto assets (now only ETH) into CDP vault and you will get a loan in the amount 66% of DAI (1 DAI = 1 USD) against the deposited amount. 
+	⁃	If you want to get back access to your locked crypto, you will just simply repay your borrowed debt in Dai.
+
+
+If ETH goes down:
+	⁃	Every CDP must have Liquidation Ratio over 150% and also it is necessary to watch on “Liquidation price”, which is ETH price, where CDP will be liquidated
+	⁃	If the Liquidation Ratio falls below 150%, CDP it becomes vulnerable and your deposit will be charged by 13% penalty
+	⁃	If your ratio of CDP becomes dangerous, you just simply lock up more ETH or repay the debt in Dai.
+
+——————
+
+MakerDAO:
+	⁃	Maker Decentralized Autonomous Organization
+	⁃	a decentralized organization dedicated to bringing stability to the cryptocurrency economy
+	⁃	In return for regulating the system, MKR (Maker Coin) holders are rewarded with fees
+	⁃	Should the collateral in the system not be enough to cover the amount of Dai in existence, MKR is created and sold onto the open market in order to raise the additional collateral. This provides a strong incentive for MKR holders to responsibly regulate the parameters at which CDPs can create Dai, as it will ultimately be their money on the line should the system fail, not holders of Dai
+	⁃	Multi-Collateral Dai (MCD) will be released on November 18, and along with its new features will come a very important change in terminology: “Collateralized Debt Position (CDP)” will be replaced with “Vault.”
+	⁃	The Maker Protocol, also known as the Multi-Collateral Dai (MCD) system, allows users to generate Dai by leveraging collateral assets approved by “Maker Governance.”
+	⁃	built on the Ethereum blockchain
+	⁃	Dai stablecoin
+	⁃	Maker Collateral Vaults
+	⁃	Oracles
+	⁃	Voting
+	⁃	MakerDAO governs the Maker Protocol by deciding on key parameters (e.g., stability fees, collateral types/rates, etc.) through the voting power of MKR holders.
+
+DAI:
+	⁃	Dai is a decentralized, unbiased, collateral-backed cryptocurrency soft-pegged to the US Dollar. (not backed by Wall Street/federal reserve)
+	⁃	Dai is effectively a loan on collateral 
+	⁃	Traditionally, only Ether could be used to fund MakerDAO’s CDPs, but now BAT, USDC, WBTC, TUSD, KNC, ZRX and MANA are also supported.
+	⁃	accepts any Ethereum-based asset as collateral to generate Dai given that it has been approved by MKR holders and has been given specific, corresponding Risk Parameters through the Maker decentralized governance process.
+	⁃	A decentralized stablecoin backed by Ether-only is still available and is called SAI.
+	⁃	The value of the collateral locked in a CDP needs always to exceed 150% of the value of DAI that it was used to generate.
+	⁃	minimize the price volatility on cryptocurrency markers through Dai against the fiat currency (government-issued currency that is not backed by a commodity such as gold - ex. USD)
+	⁃	has mechanisms that incentivize users to create more Dai if the price of Dai should trade above one dollar
+	⁃	You can take the Dai that you borrowed and use it to buy more ether. 
+	⁃	By doing this, you are basically buying ether on margin. 
+	⁃	Completely decentralized leverage
+
+Global Settlement:
+	⁃	Emergency Shutdown
+	⁃	A global settlement can be triggered by a select group of trusted individuals who hold the global settlement keys. 
+	⁃	If these signatories see something going horribly wrong, they will enter their keys initiate the process of gracefully winding down the system.
+
+——————
+
+Alpaca USD (AUSD)
+
+	⁃	Launched on Binance Smart Chain
+	⁃	AUSD is a fork of the battle-tested MakerDAO, with many improvements
+	⁃	Farmable Collateral Module: For most lending protocols, users have to choose between staking their assets to earn yields or staking their assets as collateral to borrow against. With AUSD, users no longer have to make this tradeoff. Smart contracts structured in such a way that while the collateral can be used to borrow AUSD, it can also earn Lending APR in their platform as well as Staking APR, which at the moment earns extra ALPACA rewards but can also compose with other protocols, meaning that in the future, the collateral can potentially earn additional yields for the users on external protocols. Because the Lending APR alone is much higher than the stability fee for AUSD(2% for most collateral types), the loans are effectively better than interest-free, they are yield-bearing auto-farming loans.
+	⁃	Efficient pegging: Being overcollateralized is not enough to maintain a stablecoin peg. In the case of MakerDAO, they can also adjust borrowing interest on DAI up and down for the collateral assets. In a situation where DAI's price goes above $1, Maker can lower borrowing interest, incentivizing users to mint new DAI which creates selling pressure to bring DAI's price back down to the $1 peg. In the case where DAI goes below $1, Maker can increase borrowing interest, incentivizing users to buy back DAI to close their borrowing positions because they have become more expensive, which creates buying pressure to bring the price back up to $1. AUSD also has this mechanism.
+	⁃	Moreover, AUSD also has an internal Stable Swap Module, similar to Maker’s Price Stability Module (PSM), which allows users to buy and sell AUSD for BUSD (Binance USD) at a rate of 1:1 with low fees. This facilitates arbitrageurs in maintaining the peg at $1.
+	⁃	Robust and Gentle Liquidation: AUSD uses gentle liquidation, meaning when an AUSD borrowing position faces liquidation, only a small portion of the position is liquidated until it is brought back to health. The max liquidation size is limited to the Close Factor, currently set to 25% of a position’s Debt Value. This gentle liquidation model results in lower associated costs and liquidation risk for AUSD borrowers, while still preventing the risk of bad debt.
+	⁃	AUSD also uses a robust atomic liquidation model. This has advantages over Maker DAO’s Dutch auction model, because AUSD’s model is simpler and better optimized for preventing bad debt.
+	⁃	Handling of Bad Debt: While we have made sure to set up the protocol structure and parameters to be very conservative, we will also have a backstop in place to handle the unlikely event of bad debt. When we launch our governance vault within the next 1-2 months, we will also launch an Insurance Plan. In this plan, in the case of a loss event such as bad debt, 50% of the Protocol APR going to the governance vault will be set aside as remuneration for this event, until the loss is covered. This way, the risk of bad debt will not only be minimized but also have coverage.
+	⁃	an auto-farming stablecoin that earns passive yields for you in the background. Now, instead of paying for loans, you can get loans while earning on your collateral.
+	⁃	overcollateralized, decentralized, and reinforced with multi-layered pegging mechanisms so that it remains stable at $1.
+	⁃	Lenders in Alpaca Finance can collateralize their deposits to borrow AUSD, which they can use inside and outside Alpaca Finance to earn additional yields.
+	⁃	AUSD is fully backed with robust risk management parameters. The stablecoin is overcollateralized by a collection of top digital assets including ETH, BNB, USDT, BUSD, BTCB and TUSD.
+	⁃	When a user supplies their assets to Alpaca Finance's lending pools, ibTokens (interest-bearing Tokens) are used to keep track of the funds they have deposited as well as any interest earned.
+
+Framework:
+Lender: 
+	⁃	You can earn safe and stable returns on your tokens by depositing them into our lending vaults. These assets are then offered to yield farmers for leveraging up their positions.
+Yield farmer: 
+	⁃	You can borrow tokens from our lending vaults, allowing you to open a leveraged farming position, multiplying your farming APR by up to 6x(minus borrowing interest). Of course, these higher yields come with larger risks than lending: liquidation, impermanent loss, etc.
+Liquidator: 
+	⁃	Monitors the pool for leveraged farming positions with Safety Buffers at 0(when equity collateral becomes too low, thus approaching risk of default) and liquidates them. (Bots only)
+
+Yield:
+	⁃	Yield farming:
+	⁃	Yield farming is an innovative DeFi concept where users stake or lend their crypto assets in order to receive returns.
+	⁃	Leveraged Yield farming:
+	⁃	Leverage results from using borrowed capital to expand your asset base and the potential returns on that asset base. In other words, you borrow funds so you can invest more, and as a result--earn more.
+	⁃	As a lender, your yield comes from:
+	⁃	Interest paid by borrowers to open leveraged yield farming positions (Interest rate is based on lending pool utilization).
+	⁃	Incentive rewards paid in ALPACA.
+	⁃	Incentive rewards paid in tokens of platform partners (in featured pools).
+	⁃	As a yield farmer, your yield comes from:
+	⁃	Yield farming incentive rewards from the AMM, if applicable - i.e. CAKE tokens from PCS.
+	⁃	Underlying trading fees of the pool - i.e. trading fees from the PancakeSwap pools.
+	⁃	Incentive rewards paid in ALPACA (only if you have a leveraged position).
