@@ -1,0 +1,5 @@
+Internship began with following the CryptoZombies course on https://cryptozombies.io/en/course.
+
+This course helped me understand all the fundamentals of Solidity, tokenisation, ERC20. & ERC721 tokens, oracles, ethereum, web3, some javascript front-end, and many other interesting blockchain features.
+
+The course gave me exactly what I required to be able to make my own tokens as well as a wallet that can store and make transactions with these tokens.
